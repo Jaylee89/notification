@@ -30,6 +30,7 @@ class SettingsDataStore(private val context: Context) {
                 endMinute = prefs[getEndMinuteKey(type)] ?: 0,
                 intervalMinutes = prefs[getIntervalKey(type)] ?: 60,
                 customName = prefs[getCustomNameKey(type)]
+            )
         }
     }
 
@@ -42,7 +43,7 @@ class SettingsDataStore(private val context: Context) {
             prefs[getEndMinuteKey(type)] = config.endMinute
             prefs[getIntervalKey(type)] = config.intervalMinutes
             if (config.customName != null) {
-                prefs[getCustomNameKey(type)] = config.customName
+                prefs[getCustomNameKey(type)] = config.customName!!
             } else {
                 prefs.remove(getCustomNameKey(type))
             }
