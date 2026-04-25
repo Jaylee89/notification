@@ -118,12 +118,12 @@ fun SettingsScreen(
                         style = MaterialTheme.typography.titleLarge
                     )
                     Text(
-                        text = "喝水提醒 v1.0.0",
+                        text = "提醒 v1.0.0",
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.padding(top = 8.dp)
                     )
                     Text(
-                        text = "专为长辈设计的定时喝水提醒工具",
+                        text = "专为长辈设计的定时提醒工具",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

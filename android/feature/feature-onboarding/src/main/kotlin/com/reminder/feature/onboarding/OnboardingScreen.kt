@@ -66,7 +66,7 @@ fun OnboardingScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "喝水提醒",
+                text = "提醒",
                 style = MaterialTheme.typography.displayMedium,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.primary
@@ -75,7 +75,7 @@ fun OnboardingScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "定时提醒您喝水，\n保持身体健康",
+                text = "定时提醒您，\n保持健康生活",
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onBackground
