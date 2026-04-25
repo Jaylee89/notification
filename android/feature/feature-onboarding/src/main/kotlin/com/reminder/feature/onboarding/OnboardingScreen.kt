@@ -25,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.reminder.core.designsystem.components.ElderlyButton
 import com.reminder.core.designsystem.theme.BlueAccent
 import kotlinx.coroutines.delay
 
@@ -109,25 +108,6 @@ fun OnboardingScreen(
             )
         }
 
-        // Bottom section: button
-        Column(
-            modifier = Modifier.weight(0.4f),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Bottom
-        ) {
-            ElderlyButton(
-                text = "开始使用",
-                onClick = {
-                    if (!completed) {
-                        completed = true
-                        onComplete()
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-        }
     }
 }
 
