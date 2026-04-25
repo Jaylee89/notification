@@ -60,7 +60,8 @@ class SettingsDataStore(private val context: Context) {
                         startMinute = prefs[getStartMinuteKey(type)] ?: 0,
                         endHour = prefs[getEndHourKey(type)] ?: 20,
                         endMinute = prefs[getEndMinuteKey(type)] ?: 0,
-                        intervalMinutes = prefs[getIntervalKey(type)] ?: 60
+                        intervalMinutes = prefs[getIntervalKey(type)] ?: 60,
+                        customName = prefs[getCustomNameKey(type)]
                     )
                 } else null
             }.toMap()
