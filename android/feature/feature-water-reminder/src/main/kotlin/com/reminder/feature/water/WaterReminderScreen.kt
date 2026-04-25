@@ -25,6 +25,7 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -64,7 +65,10 @@ fun WaterReminderScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("${viewModel.reminderType.displayName}提醒", style = MaterialTheme.typography.headlineLarge)
+                    Text(
+                        text = if (viewModel.isNewReminder) "添加" else "${viewModel.reminderType.displayName}提醒",
+                        style = MaterialTheme.typography.headlineLarge
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -112,6 +116,28 @@ fun WaterReminderScreen(
                         label = "开启喝水提醒",
                         checked = config.enabled,
                         onCheckedChange = { viewModel.toggleEnabled(it) }
+                    )
+                }
+            }
+
+            // Name input
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Text(
+                        text = "提醒名称",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = config.customName ?: viewModel.reminderType.displayName,
+                        onValueChange = { viewModel.setCustomName(it) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        placeholder = { Text("输入提醒名称") }
                     )
                 }
             }
@@ -236,6 +262,32 @@ fun WaterReminderScreen(
                             modifier = Modifier.padding(start = 12.dp)
                         )
                     }
+                }
+            }
+
+            // Summary
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                )
+            ) {
+                Row(
+                    modifier = Modifier.padding(20.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.WaterDrop,
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = "每 ${config.intervalMinutes} 分钟提醒 ${config.customName ?: viewModel.reminderType.displayName}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(start = 12.dp)
+                    )
                 }
             }
 
