@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.drinkreminder.feature.onboarding"
+    namespace = "com.reminder.feature.onboarding"
     compileSdk = 36
     buildToolsVersion = "36.0.0"
 

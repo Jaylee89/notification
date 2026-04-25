@@ -3,7 +3,7 @@
 ## Project Overview
 
 - **Name**: DrinkReminder（喝水提醒）
-- **App ID**: `com.example.drinkreminder`
+- **App ID**: `com.reminder`
 - **Target**: Elderly users — high-contrast warm color scheme, large UI components
 - **Language**: Chinese (app name, reminder type display names)
 - **Status**: Water reminder fully implemented; Medicine & Meal are TODO stubs
@@ -17,7 +17,7 @@
 adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 
 # 2. Launch the app
-adb shell am start -n com.example.drinkreminder/.MainActivity
+adb shell am start -n com.reminder/.MainActivity
 ```
 
 This is the standard delivery flow — build, install, launch.
@@ -39,7 +39,7 @@ android/
 │   ├── proguard-rules.pro
 │   └── src/main/
 │       ├── AndroidManifest.xml
-│       ├── kotlin/com/example/drinkreminder/
+│       ├── kotlin/com/reminder/
 │       │   ├── DrinkReminderApp.kt      # Application class
 │       │   ├── MainActivity.kt          # Single activity entry
 │       │   ├── AppModule.kt             # Koin DI module

@@ -4,12 +4,12 @@ plugins {
 }
 
 android {
-    namespace = "com.example.drinkreminder"
+    namespace = "com.reminder"
     compileSdk = 36
     buildToolsVersion = "36.0.0"
 
     defaultConfig {
-        applicationId = "com.example.drinkreminder"
+        applicationId = "com.reminder"
         minSdk = 28
         targetSdk = 36
         versionCode = 1

@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.drinkreminder.data.settings"
+    namespace = "com.reminder.data.settings"
     compileSdk = 36
     buildToolsVersion = "36.0.0"
 
