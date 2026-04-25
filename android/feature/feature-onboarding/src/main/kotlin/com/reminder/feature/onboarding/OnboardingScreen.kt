@@ -1,10 +1,14 @@
 package com.reminder.feature.onboarding
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -26,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.reminder.core.designsystem.theme.BlueAccent
+import com.reminder.core.designsystem.theme.CardBackground
 import kotlinx.coroutines.delay
 
 @Composable
@@ -43,16 +48,20 @@ fun OnboardingScreen(
         }
     }
 
+    val scrollState = rememberScrollState()
+
     Column(
         modifier = modifier
             .fillMaxSize()
+            .verticalScroll(scrollState)
             .padding(32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(modifier = Modifier.height(48.dp))
+
         // Top section: icon + title + subtitle
         Column(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.wrapContentHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -82,9 +91,11 @@ fun OnboardingScreen(
             )
         }
 
+        Spacer(modifier = Modifier.height(32.dp))
+
         // Middle section: feature highlights
         Column(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.wrapContentHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -120,6 +131,7 @@ private fun FeatureHighlight(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
+            .background(CardBackground)
             .padding(16.dp)
     ) {
         Text(
