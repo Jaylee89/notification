@@ -4,4 +4,4 @@
 -keep class org.koin.** { *; }
 
 # Keep model classes (used in serialization/preferences)
--keep class com.example.drinkreminder.core.model.** { *; }
+-keep class com.reminder.core.model.** { *; }

@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.drinkreminder.core.notification"
+    namespace = "com.reminder.core.notification"
     compileSdk = 36
     buildToolsVersion = "36.0.0"
 

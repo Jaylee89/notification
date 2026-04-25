@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.drinkreminder.feature.reminderlist"
+    namespace = "com.reminder.feature.reminderlist"
     compileSdk = 36
     buildToolsVersion = "36.0.0"
 

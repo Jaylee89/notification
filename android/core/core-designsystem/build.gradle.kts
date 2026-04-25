@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.drinkreminder.core.designsystem"
+    namespace = "com.reminder.core.designsystem"
     compileSdk = 36
     buildToolsVersion = "36.0.0"
 

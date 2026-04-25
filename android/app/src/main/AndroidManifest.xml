@@ -25,16 +25,16 @@
         </activity>
 
         <receiver
-            android:name="com.example.drinkreminder.core.notification.ReminderReceiver"
+            android:name="com.reminder.core.notification.ReminderReceiver"
             android:exported="false" />
         <receiver
-            android:name="com.example.drinkreminder.core.notification.AcknowledgeReceiver"
+            android:name="com.reminder.core.notification.AcknowledgeReceiver"
             android:exported="false" />
         <receiver
-            android:name="com.example.drinkreminder.core.notification.SnoozeReceiver"
+            android:name="com.reminder.core.notification.SnoozeReceiver"
             android:exported="false" />
         <receiver
-            android:name="com.example.drinkreminder.core.notification.BootReceiver"
+            android:name="com.reminder.core.notification.BootReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
