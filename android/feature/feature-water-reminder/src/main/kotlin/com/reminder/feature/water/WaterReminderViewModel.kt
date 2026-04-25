@@ -14,7 +14,8 @@ import kotlinx.coroutines.launch
 class WaterReminderViewModel(
     private val settingsRepository: SettingsRepository,
     private val notificationHelper: NotificationHelper,
-    val reminderType: ReminderType = ReminderType.WATER
+    val reminderType: ReminderType = ReminderType.WATER,
+    val isNewReminder: Boolean = false
 ) : ViewModel() {
 
     private val _config = MutableStateFlow(ScheduleConfig())
@@ -62,6 +63,11 @@ class WaterReminderViewModel(
 
     fun setInterval(minutes: Int) {
         _config.value = _config.value.copy(intervalMinutes = minutes)
+        checkPendingChanges()
+    }
+
+    fun setCustomName(name: String) {
+        _config.value = _config.value.copy(customName = name.ifBlank { null })
         checkPendingChanges()
     }
 

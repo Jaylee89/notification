@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -48,6 +50,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import com.reminder.core.designsystem.theme.AlertRed
 import com.reminder.core.designsystem.theme.SuccessGreen
 import com.reminder.core.model.ReminderState
@@ -57,7 +60,7 @@ import com.reminder.core.model.ReminderType
 @Composable
 fun ReminderListScreen(
     viewModel: ReminderListViewModel,
-    onNavigateToDetail: (ReminderType) -> Unit,
+    onNavigateToDetail: (ReminderType, Boolean) -> Unit,
     onNavigateToLog: () -> Unit,
     onNavigateToSettings: () -> Unit,
     modifier: Modifier = Modifier
@@ -98,7 +101,7 @@ fun ReminderListScreen(
         contentWindowInsets = WindowInsets.systemBars,
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { onNavigateToDetail(ReminderType.WATER) },
+                onClick = { onNavigateToDetail(ReminderType.WATER, true) },
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
                 Icon(
@@ -116,6 +119,7 @@ fun ReminderListScreen(
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            val scope = rememberCoroutineScope()
             reminders.forEach { state ->
                 if (!state.isActive) {
                     val dismissState = rememberSwipeToDismissBoxState(
@@ -133,31 +137,38 @@ fun ReminderListScreen(
                         enableDismissFromStartToEnd = false,
                         enableDismissFromEndToStart = true,
                         backgroundContent = {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(AlertRed, RoundedCornerShape(16.dp))
-                                    .padding(end = 24.dp),
-                                contentAlignment = Alignment.CenterEnd
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = "删除",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(32.dp)
-                                )
+                            Row(modifier = Modifier.fillMaxSize()) {
+                                Spacer(modifier = Modifier.weight(2f))
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .weight(1f)
+                                        .background(AlertRed, RoundedCornerShape(16.dp))
+                                        .clickable {
+                                            viewModel.deleteReminder(state.type)
+                                            scope.launch { dismissState.reset() }
+                                        },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "删除",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(32.dp)
+                                    )
+                                }
                             }
                         }
                     ) {
                         ReminderCard(
                             state = state,
-                            onClick = { onNavigateToDetail(state.type) }
+                            onClick = { onNavigateToDetail(state.type, false) }
                         )
                     }
                 } else {
                     ReminderCard(
                         state = state,
-                        onClick = { onNavigateToDetail(state.type) }
+                        onClick = { onNavigateToDetail(state.type, false) }
                     )
                 }
             }
@@ -222,7 +233,7 @@ private fun ReminderCard(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = state.type.displayName,
+                    text = state.displayName,
                     style = MaterialTheme.typography.titleLarge
                 )
                 if (state.isActive) {
