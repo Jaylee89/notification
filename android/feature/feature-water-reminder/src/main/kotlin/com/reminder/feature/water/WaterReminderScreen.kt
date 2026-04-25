@@ -66,7 +66,7 @@ fun WaterReminderScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = if (viewModel.isNewReminder) "添加" else "${viewModel.reminderType.displayName}提醒",
+                        text = if (viewModel.isNewReminder) "添加" else (config.customName ?: "${viewModel.reminderType.displayName}提醒"),
                         style = MaterialTheme.typography.headlineLarge
                     )
                 },
@@ -113,7 +113,7 @@ fun WaterReminderScreen(
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
                     ElderlySwitch(
-                        label = "开启喝水提醒",
+                        label = "开启提醒",
                         checked = config.enabled,
                         onCheckedChange = { viewModel.toggleEnabled(it) }
                     )
