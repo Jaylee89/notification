@@ -32,7 +32,6 @@ Thumbs.db
 
 # Claude / agents
 .claude/
-.agents/
 
 # Misc
 *.log
