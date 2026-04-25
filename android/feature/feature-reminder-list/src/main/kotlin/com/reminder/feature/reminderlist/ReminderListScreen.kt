@@ -121,44 +121,51 @@ fun ReminderListScreen(
         ) {
             val scope = rememberCoroutineScope()
             reminders.forEach { state ->
-                val dismissState = rememberSwipeToDismissBoxState(
-                    confirmValueChange = { dismissValue ->
-                        if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
-                            viewModel.deleteReminder(state.type)
-                            true
-                        } else {
-                            false
-                        }
-                    }
-                )
-                SwipeToDismissBox(
-                    state = dismissState,
-                    enableDismissFromStartToEnd = false,
-                    enableDismissFromEndToStart = true,
-                    backgroundContent = {
-                        Row(modifier = Modifier.fillMaxSize()) {
-                            Spacer(modifier = Modifier.weight(2f))
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                                    .weight(1f)
-                                    .background(AlertRed, RoundedCornerShape(16.dp))
-                                    .clickable {
-                                        viewModel.deleteReminder(state.type)
-                                        scope.launch { dismissState.reset() }
-                                    },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = "删除",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(32.dp)
-                                )
+                if (!state.isActive) {
+                    val dismissState = rememberSwipeToDismissBoxState(
+                        confirmValueChange = { dismissValue ->
+                            if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
+                                viewModel.deleteReminder(state.type)
+                                true
+                            } else {
+                                false
                             }
                         }
+                    )
+                    SwipeToDismissBox(
+                        state = dismissState,
+                        enableDismissFromStartToEnd = false,
+                        enableDismissFromEndToStart = true,
+                        backgroundContent = {
+                            Row(modifier = Modifier.fillMaxSize()) {
+                                Spacer(modifier = Modifier.weight(2f))
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .weight(1f)
+                                        .background(AlertRed, RoundedCornerShape(16.dp))
+                                        .clickable {
+                                            viewModel.deleteReminder(state.type)
+                                            scope.launch { dismissState.reset() }
+                                        },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "删除",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(32.dp)
+                                    )
+                                }
+                            }
+                        }
+                    ) {
+                        ReminderCard(
+                            state = state,
+                            onClick = { onNavigateToDetail(state.type, false) }
+                        )
                     }
-                ) {
+                } else {
                     ReminderCard(
                         state = state,
                         onClick = { onNavigateToDetail(state.type, false) }
