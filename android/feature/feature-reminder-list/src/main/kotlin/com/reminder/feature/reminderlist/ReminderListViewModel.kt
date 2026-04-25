@@ -3,12 +3,10 @@ package com.reminder.feature.reminderlist
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.reminder.core.model.ReminderState
-import com.reminder.core.model.ReminderType
 import com.reminder.data.settings.SettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class ReminderListViewModel(
@@ -18,23 +16,19 @@ class ReminderListViewModel(
     private val _reminders = MutableStateFlow<List<ReminderState>>(emptyList())
     val reminders: StateFlow<List<ReminderState>> = _reminders.asStateFlow()
 
-    fun deleteReminder(type: ReminderType) {
+    fun deleteReminder(id: String) {
         viewModelScope.launch {
-            settingsRepository.deleteScheduleConfig(type)
+            settingsRepository.deleteReminder(id)
         }
     }
 
     init {
         viewModelScope.launch {
-            val flows = ReminderType.values().map { type ->
-                settingsRepository.observeScheduleConfig(type)
-            }
-            combine(flows) { configs ->
-                ReminderType.values().mapIndexed { index, type ->
-                    ReminderState(type = type, config = configs[index])
-                }
-            }.collect { states ->
-                _reminders.value = states
+            // Migrate old data to new format on first launch
+            settingsRepository.migrateNow()
+
+            settingsRepository.observeAllReminders().collect { reminderDataList ->
+                _reminders.value = reminderDataList.map { ReminderState(data = it) }
             }
         }
     }

@@ -1,12 +1,12 @@
 package com.reminder.core.model
 
 data class ReminderState(
-    val type: ReminderType,
-    val config: ScheduleConfig,
+    val data: ReminderData,
     val todayLogs: List<ReminderLog> = emptyList()
 ) {
-    val isActive: Boolean get() = config.enabled
+    val id: String get() = data.id
+    val isActive: Boolean get() = data.config.enabled
+    val displayName: String get() = data.name
     val todayCompletedCount: Int get() = todayLogs.count { it.wasAcknowledged }
-    val todayPendingCount: Int get() = config.generateTodayTriggers().size - todayCompletedCount
-    val displayName: String get() = config.customName ?: type.displayName
+    val todayPendingCount: Int get() = data.config.generateTodayTriggers().size - todayCompletedCount
 }

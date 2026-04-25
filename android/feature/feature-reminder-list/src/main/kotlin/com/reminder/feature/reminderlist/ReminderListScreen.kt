@@ -18,13 +18,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.WaterDrop
@@ -45,22 +44,23 @@ import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
 import com.reminder.core.designsystem.theme.AlertRed
 import com.reminder.core.designsystem.theme.SuccessGreen
 import com.reminder.core.model.ReminderState
-import com.reminder.core.model.ReminderType
+import kotlinx.coroutines.launch
+import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReminderListScreen(
     viewModel: ReminderListViewModel,
-    onNavigateToDetail: (ReminderType, Boolean) -> Unit,
+    onNavigateToDetail: (String) -> Unit,
     onNavigateToLog: () -> Unit,
     onNavigateToSettings: () -> Unit,
     modifier: Modifier = Modifier
@@ -101,7 +101,10 @@ fun ReminderListScreen(
         contentWindowInsets = WindowInsets.systemBars,
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { onNavigateToDetail(ReminderType.WATER, true) },
+                onClick = {
+                    val newId = UUID.randomUUID().toString()
+                    onNavigateToDetail(newId)
+                },
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
                 Icon(
@@ -125,7 +128,7 @@ fun ReminderListScreen(
                     val dismissState = rememberSwipeToDismissBoxState(
                         confirmValueChange = { dismissValue ->
                             if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
-                                viewModel.deleteReminder(state.type)
+                                viewModel.deleteReminder(state.id)
                                 true
                             } else {
                                 false
@@ -145,7 +148,7 @@ fun ReminderListScreen(
                                         .weight(1f)
                                         .background(AlertRed, RoundedCornerShape(16.dp))
                                         .clickable {
-                                            viewModel.deleteReminder(state.type)
+                                            viewModel.deleteReminder(state.id)
                                             scope.launch { dismissState.reset() }
                                         },
                                     contentAlignment = Alignment.Center
@@ -162,13 +165,13 @@ fun ReminderListScreen(
                     ) {
                         ReminderCard(
                             state = state,
-                            onClick = { onNavigateToDetail(state.type, false) }
+                            onClick = { onNavigateToDetail(state.id) }
                         )
                     }
                 } else {
                     ReminderCard(
                         state = state,
-                        onClick = { onNavigateToDetail(state.type, false) }
+                        onClick = { onNavigateToDetail(state.id) }
                     )
                 }
             }
@@ -214,13 +217,8 @@ private fun ReminderCard(
                 .padding(20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val icon = when (state.type) {
-                ReminderType.WATER -> Icons.Default.WaterDrop
-                ReminderType.MEDICINE -> Icons.Default.AccessTime
-                ReminderType.MEAL -> Icons.Default.AccessTime
-            }
             Icon(
-                imageVector = icon,
+                imageVector = Icons.Default.WaterDrop,
                 contentDescription = null,
                 modifier = Modifier.size(48.dp),
                 tint = if (state.isActive)
