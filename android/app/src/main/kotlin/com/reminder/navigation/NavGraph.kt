@@ -2,6 +2,7 @@ package com.reminder.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.reminder.core.designsystem.theme.WarmBackground
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
