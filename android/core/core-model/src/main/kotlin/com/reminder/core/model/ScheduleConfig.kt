@@ -8,7 +8,8 @@ data class ScheduleConfig(
     val startMinute: Int = 0,
     val endHour: Int = 20,
     val endMinute: Int = 0,
-    val intervalMinutes: Int = 60
+    val intervalMinutes: Int = 60,
+    val customName: String? = null
 ) {
     fun generateTodayTriggers(): List<TriggerTime> {
         if (!enabled) return emptyList()

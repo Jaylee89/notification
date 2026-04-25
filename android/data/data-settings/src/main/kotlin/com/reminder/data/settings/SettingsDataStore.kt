@@ -28,8 +28,8 @@ class SettingsDataStore(private val context: Context) {
                 startMinute = prefs[getStartMinuteKey(type)] ?: 0,
                 endHour = prefs[getEndHourKey(type)] ?: 20,
                 endMinute = prefs[getEndMinuteKey(type)] ?: 0,
-                intervalMinutes = prefs[getIntervalKey(type)] ?: 60
-            )
+                intervalMinutes = prefs[getIntervalKey(type)] ?: 60,
+                customName = prefs[getCustomNameKey(type)]
         }
     }
 
@@ -41,6 +41,11 @@ class SettingsDataStore(private val context: Context) {
             prefs[getEndHourKey(type)] = config.endHour
             prefs[getEndMinuteKey(type)] = config.endMinute
             prefs[getIntervalKey(type)] = config.intervalMinutes
+            if (config.customName != null) {
+                prefs[getCustomNameKey(type)] = config.customName!!
+            } else {
+                prefs.remove(getCustomNameKey(type))
+            }
         }
     }
 
@@ -127,6 +132,7 @@ class SettingsDataStore(private val context: Context) {
             prefs.remove(getEndHourKey(type))
             prefs.remove(getEndMinuteKey(type))
             prefs.remove(getIntervalKey(type))
+            prefs.remove(getCustomNameKey(type))
         }
     }
 
@@ -142,6 +148,8 @@ class SettingsDataStore(private val context: Context) {
         intPreferencesKey("${type.name}_end_minute")
     private fun getIntervalKey(type: ReminderType) =
         intPreferencesKey("${type.name}_interval_min")
+    private fun getCustomNameKey(type: ReminderType) =
+        stringPreferencesKey("${type.name}_custom_name")
 
     companion object {
         private val VIBRATION_ENABLED = booleanPreferencesKey("global_vibration")
