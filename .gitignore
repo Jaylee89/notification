@@ -1,0 +1,42 @@
+# Android / Kotlin
+android/.gradle/
+android/build/
+android/app/build/
+android/captures/
+android/local.properties
+android/.externalNativeBuild/
+android/**/build/
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# IDE
+.idea/
+*.iml
+.DS_Store
+
+# Kotlin
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+
+# Gradle
+android/.gradle/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Claude / agents
+.claude/
+.agents/
+
+# Misc
+*.log
+*.tmp
+*.swp
+*.swo
+*~
