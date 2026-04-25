@@ -226,7 +226,7 @@ private fun ReminderCard(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = state.type.displayName,
+                    text = state.displayName,
                     style = MaterialTheme.typography.titleLarge
                 )
                 if (state.isActive) {
