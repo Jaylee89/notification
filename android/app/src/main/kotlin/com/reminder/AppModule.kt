@@ -21,7 +21,7 @@ val appModule = module {
     single { SettingsRepository(get()) }
 
     // ViewModels
-    viewModel { OnboardingViewModel(get()) }
+    viewModel { OnboardingViewModel() }
     viewModel { ReminderListViewModel(get()) }
     viewModel { LogViewModel(get()) }
     viewModel { SettingsViewModel(get()) }

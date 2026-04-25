@@ -1,13 +1,7 @@
 package com.reminder.navigation
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import com.reminder.core.designsystem.theme.WarmBackground
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -22,7 +16,6 @@ import com.reminder.data.settings.SettingsRepository
 import com.reminder.feature.log.LogScreen
 import com.reminder.feature.log.LogViewModel
 import com.reminder.feature.onboarding.OnboardingScreen
-import com.reminder.feature.onboarding.OnboardingViewModel
 import com.reminder.feature.reminderlist.ReminderListScreen
 import com.reminder.feature.reminderlist.ReminderListViewModel
 import com.reminder.feature.settings.SettingsScreen
@@ -45,32 +38,16 @@ object Routes {
 @Composable
 fun DrinkReminderNavHost(
     navController: NavHostController = rememberNavController(),
-    modifier: Modifier = Modifier,
-    settingsRepository: SettingsRepository = koinInject()
+    modifier: Modifier = Modifier
 ) {
-    val onboardingCompleted by settingsRepository.observeOnboardingCompleted()
-        .collectAsState(initial = null)
-
-    // Wait for DataStore to load before showing navigation
-    val ready = onboardingCompleted != null
-    if (!ready) {
-        Box(
-            modifier = Modifier.fillMaxSize().background(WarmBackground)
-        )
-        return
-    }
-
-    val startDestination = if (onboardingCompleted == true) Routes.REMINDER_LIST else Routes.ONBOARDING
     NavHost(
         navController = navController,
-        startDestination = startDestination,
+        startDestination = Routes.ONBOARDING,
         modifier = modifier
     ) {
         composable(Routes.ONBOARDING) {
-            val onboardingViewModel: OnboardingViewModel = koinViewModel()
             OnboardingScreen(
                 onComplete = {
-                    onboardingViewModel.completeOnboarding()
                     navController.navigate(Routes.REMINDER_LIST) {
                         popUpTo(Routes.ONBOARDING) { inclusive = true }
                     }

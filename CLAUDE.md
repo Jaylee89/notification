@@ -71,3 +71,4 @@ This repository contains multiple application projects. The Android project docu
 ## Rules
 
 - Write .md file in Chinese under `docs/superpowers`
+- Every time there's a code change, it ultimately requires building the app, installing it on the phone, automatically launching the app, and having users verify the results.
