@@ -60,7 +60,7 @@ import com.reminder.core.model.ReminderType
 @Composable
 fun ReminderListScreen(
     viewModel: ReminderListViewModel,
-    onNavigateToDetail: (ReminderType) -> Unit,
+    onNavigateToDetail: (ReminderType, Boolean) -> Unit,
     onNavigateToLog: () -> Unit,
     onNavigateToSettings: () -> Unit,
     modifier: Modifier = Modifier
@@ -101,7 +101,7 @@ fun ReminderListScreen(
         contentWindowInsets = WindowInsets.systemBars,
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { onNavigateToDetail(ReminderType.WATER) },
+                onClick = { onNavigateToDetail(ReminderType.WATER, true) },
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
                 Icon(
@@ -161,7 +161,7 @@ fun ReminderListScreen(
                 ) {
                     ReminderCard(
                         state = state,
-                        onClick = { onNavigateToDetail(state.type) }
+                        onClick = { onNavigateToDetail(state.type, false) }
                     )
                 }
             }

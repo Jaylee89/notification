@@ -33,11 +33,11 @@ import org.koin.compose.koinInject
 object Routes {
     const val ONBOARDING = "onboarding"
     const val REMINDER_LIST = "reminders"
-    const val REMINDER_DETAIL = "reminder/{type}"
+    const val REMINDER_DETAIL = "reminder/{type}?isNew={isNew}"
     const val LOG = "logs"
     const val SETTINGS = "settings"
 
-    fun reminderDetail(type: ReminderType) = "reminder/${type.route}"
+    fun reminderDetail(type: ReminderType, isNew: Boolean = false) = "reminder/${type.route}?isNew=$isNew"
 }
 
 @Composable
@@ -75,8 +75,8 @@ fun DrinkReminderNavHost(
             val viewModel: ReminderListViewModel = koinViewModel()
             ReminderListScreen(
                 viewModel = viewModel,
-                onNavigateToDetail = { type ->
-                    navController.navigate(Routes.reminderDetail(type))
+                onNavigateToDetail = { type, isNew ->
+                    navController.navigate(Routes.reminderDetail(type, isNew))
                 },
                 onNavigateToLog = {
                     navController.navigate(Routes.LOG)
@@ -89,9 +89,13 @@ fun DrinkReminderNavHost(
 
         composable(
             route = Routes.REMINDER_DETAIL,
-            arguments = listOf(navArgument("type") { type = NavType.StringType })
+            arguments = listOf(
+                navArgument("type") { type = NavType.StringType },
+                navArgument("isNew") { type = NavType.BoolType; defaultValue = false }
+            )
         ) { backStackEntry ->
             val typeName = backStackEntry.arguments?.getString("type") ?: return@composable
+            val isNew = backStackEntry.arguments?.getBoolean("isNew") ?: false
             val type = ReminderType.values().find { it.route == typeName } ?: return@composable
 
             when (type) {
