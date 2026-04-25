@@ -2,7 +2,7 @@ package com.reminder.feature.water
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.reminder.core.model.ReminderType
+import com.reminder.core.model.ReminderData
 import com.reminder.core.model.ScheduleConfig
 import com.reminder.core.notification.NotificationHelper
 import com.reminder.data.settings.SettingsRepository
@@ -14,8 +14,8 @@ import kotlinx.coroutines.launch
 class WaterReminderViewModel(
     private val settingsRepository: SettingsRepository,
     private val notificationHelper: NotificationHelper,
-    val reminderType: ReminderType = ReminderType.WATER,
-    val isNewReminder: Boolean = false
+    val reminderId: String,
+    val isNewReminder: Boolean
 ) : ViewModel() {
 
     private val _config = MutableStateFlow(ScheduleConfig())
@@ -23,14 +23,20 @@ class WaterReminderViewModel(
 
     private val _savedConfig = MutableStateFlow(ScheduleConfig())
 
+    private val _reminderName = MutableStateFlow("")
+    val reminderName: StateFlow<String> = _reminderName.asStateFlow()
+
     private val _hasPendingChanges = MutableStateFlow(false)
     val hasPendingChanges: StateFlow<Boolean> = _hasPendingChanges.asStateFlow()
 
     init {
         viewModelScope.launch {
-            settingsRepository.observeScheduleConfig(reminderType).collect { savedConfig ->
-                _config.value = savedConfig
-                _savedConfig.value = savedConfig
+            settingsRepository.observeReminder(reminderId).collect { reminderData ->
+                if (reminderData != null) {
+                    _config.value = reminderData.config
+                    _savedConfig.value = reminderData.config
+                    _reminderName.value = reminderData.name
+                }
                 _hasPendingChanges.value = false
             }
         }
@@ -66,20 +72,28 @@ class WaterReminderViewModel(
         checkPendingChanges()
     }
 
-    fun setCustomName(name: String) {
-        _config.value = _config.value.copy(customName = name.ifBlank { null })
+    fun setName(name: String) {
+        _reminderName.value = name
         checkPendingChanges()
     }
 
     fun save(onSaved: () -> Unit = {}) {
         viewModelScope.launch {
             val config = _config.value
-            settingsRepository.saveScheduleConfig(reminderType, config)
+            val name = _reminderName.value.ifBlank { "提醒" }
+            val reminder = ReminderData(
+                id = reminderId,
+                name = name,
+                config = config
+            )
+            settingsRepository.saveReminder(reminder)
+
+            // Cancel old alarms and schedule new ones
+            notificationHelper.cancelReminders(reminderId)
             if (config.enabled) {
-                notificationHelper.scheduleReminders(reminderType, config)
-            } else {
-                notificationHelper.cancelReminders(reminderType)
+                notificationHelper.scheduleReminders(reminder, config)
             }
+
             _savedConfig.value = config
             _hasPendingChanges.value = false
             onSaved()

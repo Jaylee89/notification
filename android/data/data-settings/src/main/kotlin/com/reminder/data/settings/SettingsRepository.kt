@@ -1,19 +1,21 @@
 package com.reminder.data.settings
 
-import com.reminder.core.model.ReminderType
-import com.reminder.core.model.ScheduleConfig
+import com.reminder.core.model.ReminderData
 import kotlinx.coroutines.flow.Flow
 
 class SettingsRepository(private val dataStore: SettingsDataStore) {
 
-    fun observeScheduleConfig(type: ReminderType): Flow<ScheduleConfig> =
-        dataStore.observeScheduleConfig(type)
+    fun observeAllReminders(): Flow<List<ReminderData>> =
+        dataStore.observeAllReminders()
 
-    suspend fun saveScheduleConfig(type: ReminderType, config: ScheduleConfig) =
-        dataStore.saveScheduleConfig(type, config)
+    fun observeReminder(id: String): Flow<ReminderData?> =
+        dataStore.observeReminder(id)
 
-    fun observeAllEnabledConfigs(): Flow<Map<ReminderType, ScheduleConfig>> =
-        dataStore.observeAllEnabledConfigs()
+    suspend fun saveReminder(reminder: ReminderData) =
+        dataStore.saveReminder(reminder)
+
+    suspend fun deleteReminder(id: String) =
+        dataStore.deleteReminder(id)
 
     fun observeVibrationEnabled(): Flow<Boolean> =
         dataStore.observeVibrationEnabled()
@@ -33,11 +35,11 @@ class SettingsRepository(private val dataStore: SettingsDataStore) {
     suspend fun setOnboardingCompleted() =
         dataStore.setOnboardingCompleted()
 
-    suspend fun deleteScheduleConfig(type: ReminderType) =
-        dataStore.clearScheduleConfig(type)
-
     suspend fun addLogEntry(entry: String) =
         dataStore.addLogEntry(entry)
+
+    suspend fun migrateNow() =
+        dataStore.migrateNow()
 
     fun observeTodayLogs(): Flow<List<String>> =
         dataStore.observeTodayLogs()

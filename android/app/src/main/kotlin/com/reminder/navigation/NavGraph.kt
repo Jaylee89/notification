@@ -1,10 +1,13 @@
 package com.reminder.navigation
 
-import androidx.compose.material3.Text
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import com.reminder.core.designsystem.theme.WarmBackground
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -14,7 +17,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.reminder.core.model.ReminderType
 import com.reminder.core.notification.NotificationHelper
 import com.reminder.data.settings.SettingsRepository
 import com.reminder.feature.log.LogScreen
@@ -33,11 +35,11 @@ import org.koin.compose.koinInject
 object Routes {
     const val ONBOARDING = "onboarding"
     const val REMINDER_LIST = "reminders"
-    const val REMINDER_DETAIL = "reminder/{type}?isNew={isNew}"
+    const val REMINDER_DETAIL = "reminder/{reminderId}?isNew={isNew}"
     const val LOG = "logs"
     const val SETTINGS = "settings"
 
-    fun reminderDetail(type: ReminderType, isNew: Boolean = false) = "reminder/${type.route}?isNew=$isNew"
+    fun reminderDetail(reminderId: String, isNew: Boolean = false) = "reminder/$reminderId?isNew=$isNew"
 }
 
 @Composable
@@ -51,7 +53,12 @@ fun DrinkReminderNavHost(
 
     // Wait for DataStore to load before showing navigation
     val ready = onboardingCompleted != null
-    if (!ready) return
+    if (!ready) {
+        Box(
+            modifier = Modifier.fillMaxSize().background(WarmBackground)
+        )
+        return
+    }
 
     val startDestination = if (onboardingCompleted == true) Routes.REMINDER_LIST else Routes.ONBOARDING
     NavHost(
@@ -75,8 +82,8 @@ fun DrinkReminderNavHost(
             val viewModel: ReminderListViewModel = koinViewModel()
             ReminderListScreen(
                 viewModel = viewModel,
-                onNavigateToDetail = { type, isNew ->
-                    navController.navigate(Routes.reminderDetail(type, isNew))
+                onNavigateToDetail = { reminderId ->
+                    navController.navigate(Routes.reminderDetail(reminderId))
                 },
                 onNavigateToLog = {
                     navController.navigate(Routes.LOG)
@@ -90,60 +97,32 @@ fun DrinkReminderNavHost(
         composable(
             route = Routes.REMINDER_DETAIL,
             arguments = listOf(
-                navArgument("type") { type = NavType.StringType },
+                navArgument("reminderId") { type = NavType.StringType },
                 navArgument("isNew") { type = NavType.BoolType; defaultValue = false }
             )
         ) { backStackEntry ->
-            val typeName = backStackEntry.arguments?.getString("type") ?: return@composable
+            val reminderId = backStackEntry.arguments?.getString("reminderId") ?: return@composable
             val isNew = backStackEntry.arguments?.getBoolean("isNew") ?: false
-            val type = ReminderType.values().find { it.route == typeName } ?: return@composable
-
-            when (type) {
-                ReminderType.WATER -> {
-                    val repo: SettingsRepository = koinInject()
-                    val notifHelper: NotificationHelper = koinInject()
-                    val viewModel = viewModel<WaterReminderViewModel>(
-                        key = "${type.name}_$isNew",
-                        factory = object : ViewModelProvider.Factory {
-                            @Suppress("UNCHECKED_CAST")
-                            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                                return WaterReminderViewModel(
-                                    settingsRepository = repo,
-                                    notificationHelper = notifHelper,
-                                    reminderType = type,
-                                    isNewReminder = isNew
-                                ) as T
-                            }
-                        }
-                    )
-                    WaterReminderScreen(
-                        viewModel = viewModel,
-                        onBack = { navController.popBackStack() }
-                    )
+            val repo: SettingsRepository = koinInject()
+            val notifHelper: NotificationHelper = koinInject()
+            val viewModel = viewModel<WaterReminderViewModel>(
+                key = reminderId,
+                factory = object : ViewModelProvider.Factory {
+                    @Suppress("UNCHECKED_CAST")
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                        return WaterReminderViewModel(
+                            settingsRepository = repo,
+                            notificationHelper = notifHelper,
+                            reminderId = reminderId,
+                            isNewReminder = isNew
+                        ) as T
+                    }
                 }
-                ReminderType.MEDICINE, ReminderType.MEAL -> {
-                    val repo: SettingsRepository = koinInject()
-                    val notifHelper: NotificationHelper = koinInject()
-                    val viewModel = viewModel<WaterReminderViewModel>(
-                        key = type.name,
-                        factory = object : ViewModelProvider.Factory {
-                            @Suppress("UNCHECKED_CAST")
-                            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                                return WaterReminderViewModel(
-                                    settingsRepository = repo,
-                                    notificationHelper = notifHelper,
-                                    reminderType = type,
-                                    isNewReminder = isNew
-                                ) as T
-                            }
-                        }
-                    )
-                    WaterReminderScreen(
-                        viewModel = viewModel,
-                        onBack = { navController.popBackStack() }
-                    )
-                }
-            }
+            )
+            WaterReminderScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
+            )
         }
 
         composable(Routes.LOG) {

@@ -11,7 +11,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.reminder.core.model.ReminderType
+import com.reminder.core.model.ReminderData
 import com.reminder.core.model.ScheduleConfig
 import com.reminder.core.model.TriggerTime
 import kotlinx.coroutines.flow.first
@@ -36,19 +36,20 @@ class NotificationHelper(private val context: Context) {
         notificationManager.createNotificationChannel(channel)
     }
 
-    fun scheduleReminders(type: ReminderType, config: ScheduleConfig) {
-        cancelReminders(type)
+    fun scheduleReminders(reminder: ReminderData, config: ScheduleConfig) {
+        cancelReminders(reminder.id)
 
         val triggers = config.generateTodayTriggers()
         val intent = Intent(context, ReminderReceiver::class.java).apply {
-            putExtra(NotificationConstants.EXTRA_REMINDER_TYPE, type.name)
-            putExtra(NotificationConstants.EXTRA_MESSAGE, "${type.displayName}的时间到了！")
+            putExtra(NotificationConstants.EXTRA_REMINDER_ID, reminder.id)
+            putExtra(NotificationConstants.EXTRA_REMINDER_NAME, reminder.name)
+            putExtra(NotificationConstants.EXTRA_MESSAGE, "${reminder.name}的时间到了！")
         }
 
         triggers.forEachIndexed { index, trigger ->
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
-                getRequestCode(type, index),
+                getRequestCode(reminder.id, index),
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
@@ -64,12 +65,12 @@ class NotificationHelper(private val context: Context) {
         }
     }
 
-    fun cancelReminders(type: ReminderType) {
-        val maxTriggers = 48 // One day with 30-min intervals max
+    fun cancelReminders(reminderId: String) {
+        val maxTriggers = 48
         for (i in 0 until maxTriggers) {
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
-                getRequestCode(type, i),
+                getRequestCode(reminderId, i),
                 Intent(context, ReminderReceiver::class.java),
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE or
                         PendingIntent.FLAG_NO_CREATE
@@ -81,12 +82,12 @@ class NotificationHelper(private val context: Context) {
         }
     }
 
-    fun showNotification(type: ReminderType, message: String, vibrationEnabled: Boolean = true) {
+    fun showNotification(reminderName: String, message: String, vibrationEnabled: Boolean = true) {
         val notificationId = System.currentTimeMillis().toInt()
 
         // Acknowledge action
         val ackIntent = Intent(context, AcknowledgeReceiver::class.java).apply {
-            putExtra(NotificationConstants.EXTRA_REMINDER_TYPE, type.name)
+            putExtra(NotificationConstants.EXTRA_REMINDER_NAME, reminderName)
         }
         val ackPendingIntent = PendingIntent.getBroadcast(
             context, notificationId, ackIntent,
@@ -95,7 +96,8 @@ class NotificationHelper(private val context: Context) {
 
         // Snooze action
         val snoozeIntent = Intent(context, SnoozeReceiver::class.java).apply {
-            putExtra(NotificationConstants.EXTRA_REMINDER_TYPE, type.name)
+            putExtra(NotificationConstants.EXTRA_REMINDER_NAME, reminderName)
+            putExtra(NotificationConstants.EXTRA_MESSAGE, message)
         }
         val snoozePendingIntent = PendingIntent.getBroadcast(
             context, notificationId + 1, snoozeIntent,
@@ -104,7 +106,7 @@ class NotificationHelper(private val context: Context) {
 
         val notificationBuilder = NotificationCompat.Builder(context, NotificationConstants.CHANNEL_ID_REMINDER)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle("${type.displayName}提醒")
+            .setContentTitle("${reminderName}提醒")
             .setContentText(message)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -132,14 +134,16 @@ class NotificationHelper(private val context: Context) {
     fun rescheduleAfterBoot() {
         val dataStore = com.reminder.data.settings.SettingsDataStore(context)
         runBlocking {
-            val configs = dataStore.observeAllEnabledConfigs().first()
-            configs.forEach { (type, config) ->
-                scheduleReminders(type, config)
+            val reminders = dataStore.getAllReminders()
+            reminders.forEach { reminder ->
+                if (reminder.config.enabled) {
+                    scheduleReminders(reminder, reminder.config)
+                }
             }
         }
     }
 
-    private fun getRequestCode(type: ReminderType, index: Int): Int {
-        return type.ordinal * 1000 + index
+    private fun getRequestCode(reminderId: String, index: Int): Int {
+        return reminderId.hashCode() and 0x7FFFFFFF * 1000 + index
     }
 }

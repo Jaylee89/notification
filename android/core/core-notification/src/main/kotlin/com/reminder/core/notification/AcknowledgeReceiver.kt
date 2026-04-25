@@ -3,7 +3,6 @@ package com.reminder.core.notification
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.reminder.core.model.ReminderType
 import com.reminder.data.settings.SettingsDataStore
 import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
@@ -13,12 +12,7 @@ import java.util.Locale
 class AcknowledgeReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        val typeName = intent.getStringExtra(NotificationConstants.EXTRA_REMINDER_TYPE) ?: return
-        val type = try {
-            ReminderType.valueOf(typeName)
-        } catch (_: IllegalArgumentException) {
-            return
-        }
+        val reminderName = intent.getStringExtra(NotificationConstants.EXTRA_REMINDER_NAME) ?: return
 
         // Stop TTS
         TTSManager.getInstance(context).stop()
@@ -27,7 +21,7 @@ class AcknowledgeReceiver : BroadcastReceiver() {
         val timeStr = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
         runBlocking {
             val dataStore = SettingsDataStore(context)
-            dataStore.addLogEntry("$timeStr - ${type.displayName}: 已确认")
+            dataStore.addLogEntry("$timeStr - $reminderName: 已确认")
         }
     }
 }

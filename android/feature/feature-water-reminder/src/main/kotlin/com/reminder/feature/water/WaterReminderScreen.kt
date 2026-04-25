@@ -57,6 +57,7 @@ fun WaterReminderScreen(
     modifier: Modifier = Modifier
 ) {
     val config by viewModel.config.collectAsState()
+    val reminderName by viewModel.reminderName.collectAsState()
     val hasPendingChanges by viewModel.hasPendingChanges.collectAsState()
     var showTimePicker by remember { mutableStateOf<String?>(null) }
 
@@ -66,7 +67,7 @@ fun WaterReminderScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = if (viewModel.isNewReminder) "添加" else (config.customName ?: "${viewModel.reminderType.displayName}提醒"),
+                        text = if (viewModel.isNewReminder && reminderName.isBlank()) "添加" else reminderName.ifBlank { "提醒" },
                         style = MaterialTheme.typography.headlineLarge
                     )
                 },
@@ -133,8 +134,8 @@ fun WaterReminderScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
-                        value = config.customName ?: viewModel.reminderType.displayName,
-                        onValueChange = { viewModel.setCustomName(it) },
+                        value = reminderName,
+                        onValueChange = { viewModel.setName(it) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         placeholder = { Text("输入提醒名称") }
@@ -284,7 +285,7 @@ fun WaterReminderScreen(
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = "每 ${config.intervalMinutes} 分钟提醒 ${config.customName ?: viewModel.reminderType.displayName}",
+                        text = "每 ${config.intervalMinutes} 分钟提醒 $reminderName",
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.padding(start = 12.dp)
                     )

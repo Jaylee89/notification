@@ -3,7 +3,6 @@ package com.reminder.core.notification
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.reminder.core.model.ReminderType
 import com.reminder.data.settings.SettingsDataStore
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -14,13 +13,8 @@ import java.util.Locale
 class ReminderReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        val typeName = intent.getStringExtra(NotificationConstants.EXTRA_REMINDER_TYPE) ?: return
+        val reminderName = intent.getStringExtra(NotificationConstants.EXTRA_REMINDER_NAME) ?: return
         val message = intent.getStringExtra(NotificationConstants.EXTRA_MESSAGE) ?: "时间到了！"
-        val type = try {
-            ReminderType.valueOf(typeName)
-        } catch (_: IllegalArgumentException) {
-            return
-        }
 
         // Read settings
         val dataStore = SettingsDataStore(context)
@@ -32,7 +26,7 @@ class ReminderReceiver : BroadcastReceiver() {
 
         // Show notification
         val notificationHelper = NotificationHelper(context)
-        notificationHelper.showNotification(type, message, vibrationEnabled = vibrationEnabled)
+        notificationHelper.showNotification(reminderName, message, vibrationEnabled = vibrationEnabled)
 
         // Check TTS setting before speaking
         if (ttsEnabled) {
@@ -42,7 +36,7 @@ class ReminderReceiver : BroadcastReceiver() {
         // Log reminder trigger
         val timeStr = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
         runBlocking {
-            dataStore.addLogEntry("$timeStr - ${type.displayName}: $message")
+            dataStore.addLogEntry("$timeStr - $reminderName: $message")
         }
     }
 }
