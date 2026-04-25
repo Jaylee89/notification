@@ -100,7 +100,22 @@ fun DrinkReminderNavHost(
 
             when (type) {
                 ReminderType.WATER -> {
-                    val viewModel: WaterReminderViewModel = koinViewModel()
+                    val repo: SettingsRepository = koinInject()
+                    val notifHelper: NotificationHelper = koinInject()
+                    val viewModel = viewModel<WaterReminderViewModel>(
+                        key = "${type.name}_$isNew",
+                        factory = object : ViewModelProvider.Factory {
+                            @Suppress("UNCHECKED_CAST")
+                            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                                return WaterReminderViewModel(
+                                    settingsRepository = repo,
+                                    notificationHelper = notifHelper,
+                                    reminderType = type,
+                                    isNewReminder = isNew
+                                ) as T
+                            }
+                        }
+                    )
                     WaterReminderScreen(
                         viewModel = viewModel,
                         onBack = { navController.popBackStack() }
@@ -117,7 +132,8 @@ fun DrinkReminderNavHost(
                                 return WaterReminderViewModel(
                                     settingsRepository = repo,
                                     notificationHelper = notifHelper,
-                                    reminderType = type
+                                    reminderType = type,
+                                    isNewReminder = isNew
                                 ) as T
                             }
                         }
