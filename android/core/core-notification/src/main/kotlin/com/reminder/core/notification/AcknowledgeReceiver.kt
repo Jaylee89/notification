@@ -14,7 +14,7 @@ class AcknowledgeReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val reminderName = intent.getStringExtra(NotificationConstants.EXTRA_REMINDER_NAME) ?: return
 
-        // Stop TTS
+        // Stop TTS and audio playback
         TTSManager.getInstance(context).stop()
 
         // Log acknowledgment

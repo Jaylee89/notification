@@ -3,6 +3,7 @@ package com.reminder.core.notification
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
 import com.reminder.data.settings.SettingsDataStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,6 +14,14 @@ import java.util.Date
 import java.util.Locale
 
 class ReminderReceiver : BroadcastReceiver() {
+
+    private fun getRawResId(context: Context, name: String): Int? {
+        return try {
+            context.resources.getIdentifier(name, "raw", context.packageName).takeIf { it != 0 }
+        } catch (_: Resources.NotFoundException) {
+            null
+        }
+    }
 
     override fun onReceive(context: Context, intent: Intent) {
         val reminderName = intent.getStringExtra(NotificationConstants.EXTRA_REMINDER_NAME) ?: return
@@ -41,7 +50,19 @@ class ReminderReceiver : BroadcastReceiver() {
 
                 // Check TTS setting before speaking
                 if (ttsEnabled) {
-                    TTSManager.getInstance(context).speak(message)
+                    val ttsManager = TTSManager.getInstance(context)
+                    val rawResId = when {
+                        reminderName.contains("喝水") ->
+                            getRawResId(context, "drinkinng")
+                        reminderName.contains("吃饭") ->
+                            getRawResId(context, "lunch")
+                        else -> null
+                    }
+                    if (rawResId != null) {
+                        ttsManager.playRawAudio(rawResId)
+                    } else {
+                        ttsManager.speak(message)
+                    }
                 }
 
                 // Log reminder trigger

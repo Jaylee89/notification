@@ -1,18 +1,19 @@
 package com.reminder.core.notification
 
 import android.content.Context
+import android.media.MediaPlayer
 import android.speech.tts.TextToSpeech
-import android.speech.tts.UtteranceProgressListener
 import java.util.Locale
 
-class TTSManager private constructor(context: Context) {
+class TTSManager private constructor(private val appContext: Context) {
 
     private var tts: TextToSpeech? = null
     private var isInitialized = false
     private val pendingMessages = mutableListOf<String>()
+    private var mediaPlayer: MediaPlayer? = null
 
     init {
-        tts = TextToSpeech(context) { status ->
+        tts = TextToSpeech(appContext) { status ->
             if (status == TextToSpeech.SUCCESS) {
                 tts?.language = Locale.CHINESE
                 isInitialized = true
@@ -40,8 +41,29 @@ class TTSManager private constructor(context: Context) {
         tts?.speak(text, TextToSpeech.QUEUE_ADD, null, null)
     }
 
+    /**
+     * Play audio file from res/raw/ by resource ID (e.g. R.raw.drinkinng)
+     */
+    fun playRawAudio(rawResId: Int) {
+        stopAudio()
+        mediaPlayer = MediaPlayer.create(appContext, rawResId).apply {
+            setOnCompletionListener { it.release() }
+            setOnErrorListener { mp, _, _ -> mp.release(); true }
+            start()
+        }
+    }
+
     fun stop() {
         tts?.stop()
+        stopAudio()
+    }
+
+    private fun stopAudio() {
+        mediaPlayer?.apply {
+            if (isPlaying) stop()
+            release()
+        }
+        mediaPlayer = null
     }
 
     fun shutdown() {
@@ -49,6 +71,7 @@ class TTSManager private constructor(context: Context) {
         tts?.shutdown()
         tts = null
         isInitialized = false
+        stopAudio()
     }
 
     companion object {
