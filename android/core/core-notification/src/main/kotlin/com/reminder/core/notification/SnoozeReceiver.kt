@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.reminder.core.notification.FileLogger
 
 class SnoozeReceiver : BroadcastReceiver() {
 
@@ -14,6 +15,9 @@ class SnoozeReceiver : BroadcastReceiver() {
 
         // Stop current TTS
         TTSManager.getInstance(context).stop()
+
+        // Log snooze
+        FileLogger.debug("Snooze", "用户推迟提醒: $reminderName")
 
         // Schedule snooze for 5 minutes
         val snoozeIntent = Intent(context, ReminderReceiver::class.java).apply {

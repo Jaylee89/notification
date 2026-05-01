@@ -1,6 +1,7 @@
 package com.reminder
 
 import android.app.Application
+import com.reminder.core.notification.FileLogger
 import com.reminder.core.notification.NotificationHelper
 import com.reminder.core.notification.ReminderService
 import com.reminder.data.settings.SettingsDataStore
@@ -17,6 +18,17 @@ class DrinkReminderApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        // Initialize file logger
+        FileLogger.init(this)
+        FileLogger.debug("App", "应用启动")
+
+        // Set default uncaught exception handler to log crashes
+        val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            FileLogger.e("Crash", "未捕获异常: thread=${thread.name}", throwable)
+            defaultHandler?.uncaughtException(thread, throwable)
+        }
 
         startKoin {
             androidContext(this@DrinkReminderApp)

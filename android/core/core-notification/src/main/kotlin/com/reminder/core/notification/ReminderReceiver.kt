@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
+import com.reminder.core.notification.FileLogger
 import com.reminder.data.settings.SettingsDataStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -41,6 +42,9 @@ class ReminderReceiver : BroadcastReceiver() {
                     tts to vib
                 }
 
+                // Log reminder trigger
+                FileLogger.debug("Reminder", "提醒触发: $reminderName - $message")
+
                 // Show notification
                 val notificationHelper = NotificationHelper(context)
                 notificationHelper.showNotification(
@@ -52,14 +56,13 @@ class ReminderReceiver : BroadcastReceiver() {
                 if (ttsEnabled) {
                     val ttsManager = TTSManager.getInstance(context)
                     val rawResId = when {
-                        reminderName.contains("喝水") ->
-                            getRawResId(context, "drinkinng")
-                        reminderName.contains("吃饭") ->
-                            getRawResId(context, "lunch")
+                        reminderName.contains("喝水") -> getRawResId(context, "drinkinng")
+                        reminderName.contains("吃饭") -> getRawResId(context, "lunch")
                         else -> null
                     }
                     if (rawResId != null) {
-                        ttsManager.playRawAudio(rawResId)
+                        val audioName = if (reminderName.contains("喝水")) "drinkinng" else "lunch"
+                        ttsManager.playRawAudio(audioName, rawResId)
                     } else {
                         ttsManager.speak(message)
                     }

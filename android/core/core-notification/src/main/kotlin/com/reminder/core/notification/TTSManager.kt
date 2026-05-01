@@ -11,7 +11,7 @@ class TTSManager private constructor(private val appContext: Context) {
     private var isInitialized = false
     private val pendingMessages = mutableListOf<String>()
     private var mediaPlayer: MediaPlayer? = null
-    private val pendingAudio = mutableListOf<Int>()
+    private val pendingAudio = mutableListOf<Pair<String, Int>>()
     private var isPlayingAudio = false
 
     init {
@@ -35,11 +35,13 @@ class TTSManager private constructor(private val appContext: Context) {
             synchronized(pendingMessages) {
                 if (!isInitialized) {
                     pendingMessages.add(text)
+                    FileLogger.debug("TTS", "TTS未就绪，排队: $text")
                     return
                 }
                 // Double-check: TTS may have become ready while we waited for lock
             }
         }
+        FileLogger.debug("TTS", "TTS播放: $text")
         tts?.speak(text, TextToSpeech.QUEUE_ADD, null, null)
     }
 
@@ -48,15 +50,17 @@ class TTSManager private constructor(private val appContext: Context) {
      * If another audio is currently playing, the request is queued and played
      * automatically after the current one finishes.
      */
-    fun playRawAudio(rawResId: Int) {
+    fun playRawAudio(audioName: String, rawResId: Int) {
         if (isPlayingAudio) {
-            pendingAudio.add(rawResId)
+            pendingAudio.add(audioName to rawResId)
+            FileLogger.debug("TTS", "音频播放中，排队: $audioName")
             return
         }
-        playNextAudio(rawResId)
+        FileLogger.debug("TTS", "播放音频: $audioName")
+        playNextAudio(audioName, rawResId)
     }
 
-    private fun playNextAudio(rawResId: Int) {
+    private fun playNextAudio(audioName: String, rawResId: Int) {
         isPlayingAudio = true
         mediaPlayer = MediaPlayer.create(appContext, rawResId).apply {
             setOnCompletionListener {
@@ -78,12 +82,13 @@ class TTSManager private constructor(private val appContext: Context) {
 
     private fun playPendingAudio() {
         if (pendingAudio.isNotEmpty()) {
-            val nextResId = pendingAudio.removeAt(0)
-            playNextAudio(nextResId)
+            val (name, resId) = pendingAudio.removeAt(0)
+            playNextAudio(name, resId)
         }
     }
 
     fun stop() {
+        FileLogger.debug("TTS", "TTS停止")
         tts?.stop()
         stopAudio()
         pendingAudio.clear()
