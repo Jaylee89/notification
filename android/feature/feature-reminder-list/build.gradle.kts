@@ -33,6 +33,7 @@ android {
 dependencies {
     implementation(project(":core:core-model"))
     implementation(project(":core:core-designsystem"))
+    implementation(project(":core:core-notification"))
     implementation(project(":data:data-settings"))
 
     implementation(platform(libs.compose.bom))
