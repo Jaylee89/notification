@@ -1,14 +1,13 @@
 package com.reminder.core.notification
 
-import android.Manifest
 import android.app.AlarmManager
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.os.Build
+import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.reminder.core.model.ReminderData
@@ -32,6 +31,13 @@ class NotificationHelper(private val context: Context) {
         ).apply {
             description = NotificationConstants.CHANNEL_DESC_REMINDER
             setShowBadge(true)
+            enableVibration(true)
+            // 显式设置通知音 — 对 Android 8.0+ 必需，仅靠 setDefaults() 不生效
+            setSound(
+                Settings.System.DEFAULT_NOTIFICATION_URI,
+                Notification.AUDIO_ATTRIBUTES_DEFAULT
+            )
+            vibrationPattern = longArrayOf(300, 400, 200, 400)
         }
         notificationManager.createNotificationChannel(channel)
     }
@@ -117,9 +123,10 @@ class NotificationHelper(private val context: Context) {
             .addAction(android.R.drawable.ic_dialog_dialer, "知道了", ackPendingIntent)
             .addAction(android.R.drawable.ic_lock_idle_alarm, "5分钟后再提醒", snoozePendingIntent)
 
-        if (!vibrationEnabled) {
+        if (vibrationEnabled) {
+            notificationBuilder.setDefaults(NotificationCompat.DEFAULT_SOUND or NotificationCompat.DEFAULT_VIBRATE)
+        } else {
             notificationBuilder.setVibrate(longArrayOf(0L))
-            notificationBuilder.setDefaults(NotificationCompat.DEFAULT_SOUND)
         }
 
         val notification = notificationBuilder.build()
