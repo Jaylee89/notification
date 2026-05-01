@@ -21,9 +21,10 @@ class SnoozeReceiver : BroadcastReceiver() {
             putExtra(NotificationConstants.EXTRA_MESSAGE, message)
         }
 
+        val requestCode = (reminderName.hashCode() and 0x7FFFFFFF) * 1000 + 999
         val pendingIntent = PendingIntent.getBroadcast(
             context,
-            reminderName.hashCode() and 0x7FFFFFFF + 999,
+            requestCode,
             snoozeIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )

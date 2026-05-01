@@ -22,7 +22,7 @@ val appModule = module {
 
     // ViewModels
     viewModel { OnboardingViewModel() }
-    viewModel { ReminderListViewModel(get()) }
+    viewModel { ReminderListViewModel(get(), get()) }
     viewModel { LogViewModel(get()) }
     viewModel { SettingsViewModel(get()) }
 }

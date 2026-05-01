@@ -86,10 +86,26 @@ class NotificationHelper(private val context: Context) {
                 alarmManager.cancel(it)
             }
         }
+        cancelSnooze(reminderId)
+    }
+
+    private fun cancelSnooze(reminderId: String) {
+        val requestCode = (reminderId.hashCode() and 0x7FFFFFFF) * 1000 + 999
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            requestCode,
+            Intent(context, ReminderReceiver::class.java),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE or
+                    PendingIntent.FLAG_NO_CREATE
+        )
+        pendingIntent?.cancel()
+        pendingIntent?.let {
+            alarmManager.cancel(it)
+        }
     }
 
     fun showNotification(reminderName: String, message: String, vibrationEnabled: Boolean = true) {
-        val notificationId = System.currentTimeMillis().toInt()
+        val notificationId = (System.currentTimeMillis() and 0x7FFFFFFF).toInt()
 
         // Acknowledge action
         val ackIntent = Intent(context, AcknowledgeReceiver::class.java).apply {
@@ -151,6 +167,6 @@ class NotificationHelper(private val context: Context) {
     }
 
     private fun getRequestCode(reminderId: String, index: Int): Int {
-        return reminderId.hashCode() and 0x7FFFFFFF * 1000 + index
+        return (reminderId.hashCode() and 0x7FFFFFFF) * 1000 + index
     }
 }
