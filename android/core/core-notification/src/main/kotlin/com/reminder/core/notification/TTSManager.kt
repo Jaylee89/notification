@@ -11,6 +11,8 @@ class TTSManager private constructor(private val appContext: Context) {
     private var isInitialized = false
     private val pendingMessages = mutableListOf<String>()
     private var mediaPlayer: MediaPlayer? = null
+    private val pendingAudio = mutableListOf<Int>()
+    private var isPlayingAudio = false
 
     init {
         tts = TextToSpeech(appContext) { status ->
@@ -42,20 +44,49 @@ class TTSManager private constructor(private val appContext: Context) {
     }
 
     /**
-     * Play audio file from res/raw/ by resource ID (e.g. R.raw.drinkinng)
+     * Play audio file from res/raw/ by resource ID (e.g. R.raw.drinkinng).
+     * If another audio is currently playing, the request is queued and played
+     * automatically after the current one finishes.
      */
     fun playRawAudio(rawResId: Int) {
-        stopAudio()
+        if (isPlayingAudio) {
+            pendingAudio.add(rawResId)
+            return
+        }
+        playNextAudio(rawResId)
+    }
+
+    private fun playNextAudio(rawResId: Int) {
+        isPlayingAudio = true
         mediaPlayer = MediaPlayer.create(appContext, rawResId).apply {
-            setOnCompletionListener { it.release() }
-            setOnErrorListener { mp, _, _ -> mp.release(); true }
+            setOnCompletionListener {
+                isPlayingAudio = false
+                it.release()
+                mediaPlayer = null
+                playPendingAudio()
+            }
+            setOnErrorListener { mp, _, _ ->
+                isPlayingAudio = false
+                mp.release()
+                mediaPlayer = null
+                playPendingAudio()
+                true
+            }
             start()
+        }
+    }
+
+    private fun playPendingAudio() {
+        if (pendingAudio.isNotEmpty()) {
+            val nextResId = pendingAudio.removeAt(0)
+            playNextAudio(nextResId)
         }
     }
 
     fun stop() {
         tts?.stop()
         stopAudio()
+        pendingAudio.clear()
     }
 
     private fun stopAudio() {
@@ -64,6 +95,7 @@ class TTSManager private constructor(private val appContext: Context) {
             release()
         }
         mediaPlayer = null
+        isPlayingAudio = false
     }
 
     fun shutdown() {
