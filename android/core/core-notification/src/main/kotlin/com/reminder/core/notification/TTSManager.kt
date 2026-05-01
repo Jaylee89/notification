@@ -19,7 +19,7 @@ class TTSManager private constructor(context: Context) {
                 // Flush queued messages from before TTS was ready
                 synchronized(pendingMessages) {
                     pendingMessages.forEach { msg ->
-                        tts?.speak(msg, TextToSpeech.QUEUE_FLUSH, null, null)
+                        tts?.speak(msg, TextToSpeech.QUEUE_ADD, null, null)
                     }
                     pendingMessages.clear()
                 }
@@ -37,7 +37,7 @@ class TTSManager private constructor(context: Context) {
                 // Double-check: TTS may have become ready while we waited for lock
             }
         }
-        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+        tts?.speak(text, TextToSpeech.QUEUE_ADD, null, null)
     }
 
     fun stop() {

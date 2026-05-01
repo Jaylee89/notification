@@ -208,7 +208,7 @@ class SettingsDataStore(private val context: Context) {
         val key = stringPreferencesKey("logs_${dateFormat.format(Date())}")
         return context.dataStore.data.map { prefs ->
             val raw = prefs[key] ?: ""
-            if (raw.isEmpty()) emptyList() else raw.split("\n")
+            if (raw.isEmpty()) emptyList() else raw.split("\n").reversed()
         }
     }
 
