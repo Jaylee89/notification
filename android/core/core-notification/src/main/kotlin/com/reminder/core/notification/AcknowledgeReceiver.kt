@@ -3,6 +3,7 @@ package com.reminder.core.notification
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.reminder.core.notification.FileLogger
 import com.reminder.data.settings.SettingsDataStore
 import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
@@ -16,6 +17,9 @@ class AcknowledgeReceiver : BroadcastReceiver() {
 
         // Stop TTS and audio playback
         TTSManager.getInstance(context).stop()
+
+        // Log acknowledgment
+        FileLogger.debug("Ack", "用户确认提醒: $reminderName")
 
         // Log acknowledgment
         val timeStr = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ENGLISH).format(Date())
