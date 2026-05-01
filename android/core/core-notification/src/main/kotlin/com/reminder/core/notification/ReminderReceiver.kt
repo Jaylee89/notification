@@ -45,7 +45,7 @@ class ReminderReceiver : BroadcastReceiver() {
                 }
 
                 // Log reminder trigger
-                val timeStr = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+                val timeStr = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ENGLISH).format(Date())
                 dataStore.addLogEntry("$timeStr - $reminderName: $message")
             } finally {
                 pendingResult.finish()

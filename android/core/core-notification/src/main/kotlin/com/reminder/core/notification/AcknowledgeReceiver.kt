@@ -18,7 +18,7 @@ class AcknowledgeReceiver : BroadcastReceiver() {
         TTSManager.getInstance(context).stop()
 
         // Log acknowledgment
-        val timeStr = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+        val timeStr = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ENGLISH).format(Date())
         runBlocking {
             val dataStore = SettingsDataStore(context)
             dataStore.addLogEntry("$timeStr - $reminderName: 已确认")
