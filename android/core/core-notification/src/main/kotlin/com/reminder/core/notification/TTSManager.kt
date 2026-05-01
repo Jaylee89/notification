@@ -1,18 +1,21 @@
 package com.reminder.core.notification
 
 import android.content.Context
+import android.media.MediaPlayer
 import android.speech.tts.TextToSpeech
-import android.speech.tts.UtteranceProgressListener
 import java.util.Locale
 
-class TTSManager private constructor(context: Context) {
+class TTSManager private constructor(private val appContext: Context) {
 
     private var tts: TextToSpeech? = null
     private var isInitialized = false
     private val pendingMessages = mutableListOf<String>()
+    private var mediaPlayer: MediaPlayer? = null
+    private val pendingAudio = mutableListOf<Int>()
+    private var isPlayingAudio = false
 
     init {
-        tts = TextToSpeech(context) { status ->
+        tts = TextToSpeech(appContext) { status ->
             if (status == TextToSpeech.SUCCESS) {
                 tts?.language = Locale.CHINESE
                 isInitialized = true
@@ -40,8 +43,59 @@ class TTSManager private constructor(context: Context) {
         tts?.speak(text, TextToSpeech.QUEUE_ADD, null, null)
     }
 
+    /**
+     * Play audio file from res/raw/ by resource ID (e.g. R.raw.drinkinng).
+     * If another audio is currently playing, the request is queued and played
+     * automatically after the current one finishes.
+     */
+    fun playRawAudio(rawResId: Int) {
+        if (isPlayingAudio) {
+            pendingAudio.add(rawResId)
+            return
+        }
+        playNextAudio(rawResId)
+    }
+
+    private fun playNextAudio(rawResId: Int) {
+        isPlayingAudio = true
+        mediaPlayer = MediaPlayer.create(appContext, rawResId).apply {
+            setOnCompletionListener {
+                isPlayingAudio = false
+                it.release()
+                mediaPlayer = null
+                playPendingAudio()
+            }
+            setOnErrorListener { mp, _, _ ->
+                isPlayingAudio = false
+                mp.release()
+                mediaPlayer = null
+                playPendingAudio()
+                true
+            }
+            start()
+        }
+    }
+
+    private fun playPendingAudio() {
+        if (pendingAudio.isNotEmpty()) {
+            val nextResId = pendingAudio.removeAt(0)
+            playNextAudio(nextResId)
+        }
+    }
+
     fun stop() {
         tts?.stop()
+        stopAudio()
+        pendingAudio.clear()
+    }
+
+    private fun stopAudio() {
+        mediaPlayer?.apply {
+            if (isPlaying) stop()
+            release()
+        }
+        mediaPlayer = null
+        isPlayingAudio = false
     }
 
     fun shutdown() {
@@ -49,6 +103,7 @@ class TTSManager private constructor(context: Context) {
         tts?.shutdown()
         tts = null
         isInitialized = false
+        stopAudio()
     }
 
     companion object {
